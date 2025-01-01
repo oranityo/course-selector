@@ -14,6 +14,21 @@ const users = [
     { id: 2, username: 'student1', password: 'password123', role: 'student' }
 ];
 
+const courses = [
+    { id: 1, courseName: 'Math', professorName: 'Dr. Maya', points: 3, maxStudents: 30 },
+    { id: 2, courseName: 'Physics', professorName: 'Dr. Avraham', points: 4, maxStudents: 25 }
+];
+
+const students = [
+    { id: 1, name: 'Yuval', address: 'Jerusalam', yearCount: 1 },
+    { id: 2, name: 'Liron', address: 'Tel Aviv', yearCount: 2 },
+];
+
+const professors = [
+    { id: 1, name: 'Dr. Maya', address: 'Tel Aviv' },
+    { id: 2, name: 'Dr. Avraham', address: 'Haifa' }
+];
+
 const SECRET_KEY = 'secretkey';
 
 function generateToken(user) {
@@ -43,6 +58,18 @@ app.post('/login', (req, res) => {
 
     const token = generateToken(user);
     res.json({ accessToken: token });
+});
+
+
+app.post('/signup', (req, res) => {
+    const { username, password, role } = req.body;
+    if (!username || !password || !role) return res.status(400).json({ message: 'Missing fields' });
+    if (users.find(u => u.username === username)) return res.status(400).json({ message: 'User already exists' });
+
+    const id = users.length + 1;
+    const newUser = { id, username, password, role };
+    users.push(newUser);
+    res.status(200).json({ message: 'User registered successfully' });
 });
 
 // General API
