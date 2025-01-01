@@ -20,8 +20,8 @@ const courses = [
 ];
 
 const students = [
-    { id: 1, name: 'Yuval', address: 'Jerusalam', yearCount: 1 },
-    { id: 2, name: 'Liron', address: 'Tel Aviv', yearCount: 2 },
+    { id: 1, name: 'Yuval', address: 'Jerusalam', yearCount: 1, courses: [] },
+    { id: 2, name: 'Liron', address: 'Tel Aviv', yearCount: 2, courses: []  },
 ];
 
 const professors = [
@@ -72,16 +72,59 @@ app.post('/signup', (req, res) => {
     res.status(200).json({ message: 'User registered successfully' });
 });
 
-// General API
-app.get('/general', authenticateToken, (req, res) => {
-    res.json({ message: `Hello ${req.user.username}` });
+// APIs for Both Users
+app.get('/courses', authenticateToken, (req, res) => {
+    res.json(courses);
 });
 
-// Professor only API
-app.get('/professor', authenticateToken, authorizeProfessor, (req, res) => {
-    res.json({ message: `Welcome Professor ${req.user.username}` });
+app.get('/courses/:name', authenticateToken, (req, res) => {
+    const course = courses.find(c => c.courseName === req.params.name);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+    res.json(course);
 });
 
+// Professor APIs
+app.post('/courses', authenticateToken, authorizeProfessor, (req, res) => {
+    const { courseName, professorName, points, maxStudents } = req.body;
+    const id = courses.length + 1;
+    courses.push({ id, courseName, professorName, points, maxStudents });
+    res.status(200).json({ message: 'Course added successfully' });
+});
+
+app.put('/courses/:id', authenticateToken, authorizeProfessor, (req, res) => {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+    Object.assign(course, req.body);
+    res.json({ message: 'Course updated successfully' });
+});
+
+app.delete('/courses/:id', authenticateToken, authorizeProfessor, (req, res) => {
+    const index = courses.findIndex(c => c.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ message: 'Course not found' });
+    courses.splice(index, 1);
+    res.json({ message: 'Course deleted successfully' });
+});
+
+// Student APIs
+app.post('/students/:id/courses', authenticateToken, (req, res) => {
+    const student = students.find(s => s.id === parseInt(req.params.id));
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    student.courses.push(req.body.courseId);
+    res.json({ message: 'Course added to student successfully' });
+});
+
+app.get('/students/:id/courses', authenticateToken, (req, res) => {
+    const student = students.find(s => s.id === parseInt(req.params.id));
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    res.json(student.courses);
+});
+
+app.delete('/students/:id/courses', authenticateToken, (req, res) => {
+    const student = students.find(s => s.id === parseInt(req.params.id));
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    student.courses = student.courses.filter(c => c !== req.body.courseId);
+    res.json({ message: 'Course removed from student successfully' });
+});
 
 app.get('/', (req, res) => {
     res.send('Course Selector API is running');
