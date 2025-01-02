@@ -28,12 +28,14 @@ db.once('open', async () => {
 
     const defaultUsers = [
         { id: 1, user_id: 1, username: 'professor1', password: 'password123', role: 'professor' },
-        { id: 2, user_id: 1, username: 'student1', password: 'password123', role: 'student' }
+        { id: 2, user_id: 2, username: 'professor2', password: 'password123', role: 'professor' },
+        { id: 3, user_id: 1, username: 'student1', password: 'password123', role: 'student' },
+        { id: 4, user_id: 2, username: 'student2', password: 'password123', role: 'student' }
     ];
 
     const defaultCourses = [
-        { id: 1, courseName: 'Math', professorName: 'Dr. Maya', points: 3, maxStudents: 30 },
-        { id: 2, courseName: 'Physics', professorName: 'Dr. Avraham', points: 4, maxStudents: 25 }
+        { id: 1, courseName: 'Math', professorName: 'Dr. Maya', points: 10, maxStudents: 2 },
+        { id: 2, courseName: 'Physics', professorName: 'Dr. Avraham', points: 10, maxStudents: 3 }
     ];
 
     if ((await Student.countDocuments()) === 0) await Student.insertMany(defaultStudents);
